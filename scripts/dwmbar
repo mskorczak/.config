@@ -1,0 +1,14 @@
+#!/bin/sh
+
+while true; 
+do
+	OUT="Status"
+	# Keyboard
+	# Volume
+	# Temp
+	# Battery (if needed)
+	# Brightness (if needed)
+	# Time/Date
+	xsetroot -name "$OUT"
+	sleep 1s
+done
