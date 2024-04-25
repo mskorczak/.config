@@ -1,29 +1,165 @@
-" VIMRC
+" mskor vimrc
 
-" Settings
-"
-set nocompatible
-filetype plugin on
+" plugins
+
+call plug#begin()
+	Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+	Plug 'junegunn/fzf.vim'
+	Plug 'crusoexia/vim-monokai'
+	Plug 'tpope/vim-commentary'
+	Plug 'tpope/vim-surround'
+	Plug 'tpope/vim-fugitive'
+	Plug 'tpope/vim-pathogen'
+	Plug 'vim-airline/vim-airline'
+	Plug 'jremmen/vim-ripgrep'
+	Plug 'vimwiki/vimwiki'
+	Plug 'prabirshrestha/vim-lsp'
+	Plug 'mattn/vim-lsp-settings'
+	Plug 'prabirshrestha/asyncomplete.vim'
+	Plug 'prabirshrestha/asyncomplete-lsp.vim'
+	Plug 'prabirshrestha/asyncomplete-tags.vim'
+	Plug 'vim-scripts/AutoComplPop'
+	Plug 'ludovicchabant/vim-gutentags'
+	Plug 'liuchengxu/vim-which-key'
+call plug#end()
+
+execute pathogen#infect()
+
+" settings
+let g:mapleader = "\\"
 syntax on
-" set encoding=utf-8
+colorscheme monokai
 set number
-set smartindent
-set smartcase
-set noswapfile
+set nocompatible
+set backspace=indent,eol,start
+set ttimeout
+set ttimeoutlen=100
+filetype indent plugin on
 set nobackup
+set nowritebackup
+packloadall | silent! helptags ALL
+" change rg to rg.exe for windows
+command! -bang -nargs=? -complete=dir Rg call fzf#vim#grep("rg.exe --column --line-number --no-heading --color=always --smart-case -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)',
+filetype plugin on
+set tags=./tags;$HOME
 set incsearch
+let g:vimwiki_list = [{'path': '~/doc/', 'syntax': 'markdown', 'ext': 'md'}]
+let g:vimwiki_global_ext = 0
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
+let g:fzf_layout = { 'down': '~40%'  }
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set noswapfile
 
-" Shortcuts/Remaps
+inoremap <silent><expr> <TAB>
+            \ pumvisible() ? "\<C-n>" :
+            \ <SID>check_back_space() ? "\<TAB>" :
+            \ asyncomplete#force_refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-" Split movement
-nnoremap <C-H> <C-W><C-H>
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
+" keybinds
 
-map <C-o> :setlocal spell! spelllang=en_gb<CR>
+nmap <Leader>p :GFiles<CR>
+nmap <Leader>P :Files<CR>
+nmap <Leader>e :Vex .<CR>
+nmap <Leader>z :vs ~/.config/vim/vimrc<CR>
+nmap <F2> "=strftime("%T")<CR>P
+imap <F2> <C-R>=strftime("%T")<CR>
+nmap <Leader>m :Marks<CR>
+nmap <Leader>g :Git<CR>
+nmap <Leader>gl :Gclog<CR>
+nmap <Leader>b :Buffers<CR>
+nmap <Leader>f :RG<CR>
+nmap <Leader>t g<C-]><CR>
+nmap <Leader>h :History<CR>
+nmap <Leader>s :Scratch<CR>
+nmap <Leader>] :vertical resize -25<CR>
+nmap <Leader>[ :vertical resize +25<CR>
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
+nmap <Leader>[ :vertical resize -5<CR>
+nmap <Leader>] :vertical resize +5<CR>
+nmap <Leader>{ :resize -5<CR>
+nmap <leader>} :resize +5<CR>
+nmap <leader>D :VimwikiDiaryIndex<CR>
+nmap <leader>d :VimwikiMakeDiaryNote<CR>
+nnoremap <silent> <leader> :<c-u>WhichKey '\'<CR>
+nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
+inoremap <silent><expr> <TAB>
+            \ pumvisible() ? "\<C-n>" :
+            \ <SID>check_back_space() ? "\<TAB>" :
+            \ asyncomplete#force_refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-" Todo Shortcut
+" functions
 
-autocmd BufWritePre * %s/\s\+$//e
+function! s:ScratchGenerator()
+    exe "new" . "_scratch_"
+endfunction
+
+function! s:ScratchMarkBuffer()
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+endfunction
+
+autocmd BufNewFile _scratch_ call s:ScratchMarkBuffer()
+command! Scratch call s:ScratchGenerator()
+
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+function! s:on_lsp_buffer_enabled() abort
+	setlocal omnifunc=lsp#complete
+	setlocal signcolumn=yes
+	if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+	nmap <buffer> gd <plug>(lsp-definition)
+	nmap <buffer> gs <plug>(lsp-document-symbol-search)
+	nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
+	nmap <buffer> gr <plug>(lsp-references)
+	nmap <buffer> gi <plug>(lsp-implementation)
+	nmap <buffer> gt <plug>(lsp-type-definition)
+	nmap <buffer> <leader>rn <plug>(lsp-rename)
+	nmap <buffer> [g <plug>(lsp-previous-diagnostic)
+	nmap <buffer> ]g <plug>(lsp-next-diagnostic)
+	nmap <buffer> K <plug>(lsp-hover)
+	nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
+    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
+
+	let g:lsp_format_sync_timeout = 1
+	autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
+	" refer to doc to add more commands
+endfunction
+
+augroup lsp_install
+    au!
+    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup endfunction
+
+au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#tags#get_source_options({
+            \ 'name': 'tags',
+            \ 'allowlist': ['csharp'],
+            \ 'completor': function('asyncomplete#sources#tags#completor'),
+            \ 'config': {
+            \    'max_file_size': 50000000,
+            \  },
+            \ }))
+
+augroup vimwikigroup
+    autocmd!
+    " automatically update links on read diary
+    autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
+augroup endfunction
+
+
 
