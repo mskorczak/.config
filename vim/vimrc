@@ -15,10 +15,6 @@ call plug#begin()
 	Plug 'vimwiki/vimwiki'
 	Plug 'prabirshrestha/vim-lsp'
 	Plug 'mattn/vim-lsp-settings'
-	Plug 'prabirshrestha/asyncomplete.vim'
-	Plug 'prabirshrestha/asyncomplete-lsp.vim'
-	Plug 'prabirshrestha/asyncomplete-tags.vim'
-	Plug 'vim-scripts/AutoComplPop'
 	Plug 'ludovicchabant/vim-gutentags'
 	Plug 'liuchengxu/vim-which-key'
 call plug#end()
@@ -92,11 +88,6 @@ nmap <leader>D :VimwikiDiaryIndex<CR>
 nmap <leader>d :VimwikiMakeDiaryNote<CR>
 nnoremap <silent> <leader> :<c-u>WhichKey '\'<CR>
 nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
-inoremap <silent><expr> <TAB>
-            \ pumvisible() ? "\<C-n>" :
-            \ <SID>check_back_space() ? "\<TAB>" :
-            \ asyncomplete#force_refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 " functions
 
@@ -146,20 +137,8 @@ augroup lsp_install
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup endfunction
 
-au User asyncomplete_setup call asyncomplete#register_source(asyncomplete#sources#tags#get_source_options({
-            \ 'name': 'tags',
-            \ 'allowlist': ['csharp'],
-            \ 'completor': function('asyncomplete#sources#tags#completor'),
-            \ 'config': {
-            \    'max_file_size': 50000000,
-            \  },
-            \ }))
-
 augroup vimwikigroup
     autocmd!
     " automatically update links on read diary
     autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
 augroup endfunction
-
-
-
