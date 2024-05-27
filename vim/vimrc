@@ -8,21 +8,26 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin()
-	Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-	Plug 'junegunn/fzf.vim'
-	Plug 'crusoexia/vim-monokai'
-	Plug 'tpope/vim-commentary'
-	Plug 'tpope/vim-surround'
-	Plug 'tpope/vim-fugitive'
-	Plug 'tpope/vim-pathogen'
-	Plug 'vim-airline/vim-airline'
-	Plug 'jremmen/vim-ripgrep'
-	Plug 'vimwiki/vimwiki'
-	Plug 'prabirshrestha/vim-lsp'
-	Plug 'mattn/vim-lsp-settings'
-	Plug 'ludovicchabant/vim-gutentags'
-	Plug 'liuchengxu/vim-which-key'
+" Run PlugInstall if there are missing plugins
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \| PlugInstall --sync | source $MYVIMRC
+\| endif
+
+call plug#begin('~/.vim/bundle')
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'crusoexia/vim-monokai'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-pathogen'
+Plug 'vim-airline/vim-airline'
+Plug 'jremmen/vim-ripgrep'
+Plug 'vimwiki/vimwiki'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'liuchengxu/vim-which-key'
 call plug#end()
 
 execute pathogen#infect()
@@ -92,6 +97,7 @@ nmap <Leader>{ :resize -5<CR>
 nmap <leader>} :resize +5<CR>
 nmap <leader>D :VimwikiDiaryIndex<CR>
 nmap <leader>d :VimwikiMakeDiaryNote<CR>
+nmap <F4> :make
 nnoremap <silent> <leader> :<c-u>WhichKey '\'<CR>
 nnoremap <silent> <C-L> :nohlsearch<C-R>=has('diff')?'<Bar>diffupdate':''<CR><CR><C-L>
 
